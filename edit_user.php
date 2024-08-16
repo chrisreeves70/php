@@ -1,12 +1,11 @@
 <?php
-// Database connection details
-$host = 'us-cdbr-east-01.cleardb.net';
-$dbname = 'heroku_82f3c661d2b7b36';
+// Database connection
+$dsn = 'mysql:host=us-cdbr-east-01.cleardb.net;dbname=heroku_82f3c661d2b7b36;charset=utf8mb4';
 $username = 'bb9db01117ded9';
 $password = 'ae365e5b';
 
 try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo = new PDO($dsn, $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Could not connect to the database: " . $e->getMessage());
@@ -46,5 +45,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h1>Edit User</h1>
-    <form action="edit
-
+    <form action="edit_user.php?id=<?php echo $user['id']; ?>" method="post">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+        <br>
+        <button type="submit">Update User</button>
+    </form>
+    <a href="index.php">Back to User List</a>
+</body>
+</html>
