@@ -1,21 +1,6 @@
 <?php
-// Database connection
-$host = 'us-cluster-east-01.k8s.cleardb.net';
-$dbname = 'heroku_82f3c661d2b7b36';
-$username = 'bb9db01117ded9';
-$password = 'ae365e5b';
-
-$mysqli = new mysqli($host, $username, $password, $dbname);
-
-// Check connection
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
-}
-
-// Test the connection
-if (!$mysqli->ping()) {
-    die("Could not connect to the database.");
-}
+// Include database connection file
+include 'db_connection.php';
 
 $id = $_GET['id'];
 
@@ -60,24 +45,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Edit User</h1>
-    <form action="edit_user.php?id=<?php echo $user['id']; ?>" method="post">
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
-        <br>
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
-        <br>
-        <button type="submit">Update User</button>
-    </form>
-    <a href="index.php">Back to User List</a>
+    <div class="container">
+        <h1 class="mt-5">Edit User</h1>
+        <form action="edit_user.php?id=<?php echo htmlspecialchars($user['id']); ?>" method="post">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" class="form-control" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update User</button>
+        </form>
+        <a href="index.php" class="btn btn-secondary mt-3">Back to User List</a>
+    </div>
 </body>
 </html>
 
 <?php
 $mysqli->close();
 ?>
-
