@@ -9,8 +9,6 @@
 <body>
     <div class="container mt-5">
         <h2>User List</h2>
-        <!-- Home Link -->
-        <a href="index.php" class="btn btn-primary mb-3">Home</a>
         <table class="table table-bordered mt-3">
             <thead>
                 <tr>
