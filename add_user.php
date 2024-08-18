@@ -10,21 +10,35 @@ $username = "bb9db01117ded9";
 $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
 
+function connectToDatabase($servername, $username, $password, $dbname) {
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+    
+    return $conn;
+}
+
+function handleConnectionError($e) {
+    // Check if the error is related to max_user_connections
+    if (strpos($e->getMessage(), 'max_user_connections') !== false) {
+        sleep(5); // Wait for a few seconds before retrying
+        return true;
+    }
+    return false;
+}
+
 try {
     // Capture start time for debugging
     $startTime = microtime(true);
 
     // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = connectToDatabase($servername, $username, $password, $dbname);
 
     // Log connection time
     $connTime = microtime(true);
     error_log("Connection established in " . ($connTime - $startTime) . " seconds");
-
-    // Check connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -60,7 +74,46 @@ try {
     // Close the connection
     $conn->close();
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+    if (handleConnectionError($e)) {
+        // Retry connection and execution
+        try {
+            $conn = connectToDatabase($servername, $username, $password, $dbname);
+            // Process form submission again
+            if ($_SERVER["REQUEST_METHOD"] == "POST") {
+                // Prepare and bind
+                $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+                if ($stmt === false) {
+                    throw new Exception("Prepare failed: " . $conn->error);
+                }
+
+                $stmt->bind_param("ss", $name, $email);
+
+                // Set parameters and execute
+                $name = $_POST['name'];
+                $email = $_POST['email'];
+
+                if (!$stmt->execute()) {
+                    throw new Exception("Execute failed: " . $stmt->error);
+                }
+
+                // Log execution time
+                $executionTime = microtime(true) - $connTime;
+                error_log("Query executed in $executionTime seconds");
+
+                echo "New record created successfully";
+
+                // Close the statement
+                $stmt->close();
+            }
+
+            // Close the connection
+            $conn->close();
+        } catch (Exception $e) {
+            echo "Retry Error: " . $e->getMessage();
+        }
+    } else {
+        echo "Error: " . $e->getMessage();
+    }
 }
 ?>
 
@@ -90,4 +143,5 @@ try {
     </div>
 </body>
 </html>
+
 
