@@ -5,9 +5,20 @@ $username = 'bb9db01117ded9';
 $password = 'ae365e5b';
 
 try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_TIMEOUT => 30,
+        PDO::ATTR_PERSISTENT => true
+    ]);
+
+    // Test connection
+    $stmt = $pdo->query("SELECT 1");
+    if (!$stmt) {
+        die("Could not connect to the database.");
+    }
+
 } catch (PDOException $e) {
+    error_log($e->getMessage(), 3, '/path/to/your/logs/error.log');
     die("Could not connect to the database: " . $e->getMessage());
 }
 
@@ -45,15 +56,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h1>Edit User</h1>
-    <form action="edit_user.php?id=<?php echo $user['id']; ?>" method="post">
+    <form action="edit_user.php?id=<?php echo htmlspecialchars($user['id']); ?>" method="post">
         <label for="username">Username:</label>
         <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
         <br>
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
         <br>
-        <button type="submit">Update User</button>
-    </form>
-    <a href="index.php">Back to User List</a>
-</body>
-</html>
+        <button type=
+
