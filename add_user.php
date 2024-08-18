@@ -11,8 +11,15 @@ $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
 
 try {
+    // Capture start time for debugging
+    $startTime = microtime(true);
+
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
+
+    // Log connection time
+    $connTime = microtime(true);
+    error_log("Connection established in " . ($connTime - $startTime) . " seconds");
 
     // Check connection
     if ($conn->connect_error) {
@@ -37,6 +44,10 @@ try {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
+        // Log execution time
+        $executionTime = microtime(true) - $connTime;
+        error_log("Query executed in $executionTime seconds");
+
         echo "New record created successfully";
 
         // Close the statement
@@ -50,7 +61,6 @@ try {
 }
 ?>
 
-<!-- HTML form -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,20 +71,21 @@ try {
 </head>
 <body>
     <div class="container mt-5">
-        <h1>Add New User</h1>
-        <a href="index.php" class="btn btn-primary mt-3">Home</a>
+        <h2>Add User</h2>
+        <a href="index.php" class="btn btn-primary mb-3">Home</a>
         <form method="post" action="">
             <div class="form-group">
                 <label for="name">Name:</label>
-                <input type="text" name="name" id="name" required class="form-control">
+                <input type="text" id="name" name="name" class="form-control" required>
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" name="email" id="email" required class="form-control">
+                <input type="email" id="email" name="email" class="form-control" required>
             </div>
             <button type="submit" class="btn btn-success">Add User</button>
         </form>
     </div>
 </body>
 </html>
+
 
