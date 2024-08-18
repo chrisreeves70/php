@@ -21,6 +21,14 @@ try {
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+
+        // Simple input validation
+        if (empty($name) || empty($email)) {
+            throw new Exception("Name and Email are required.");
+        }
+
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
@@ -29,10 +37,7 @@ try {
 
         $stmt->bind_param("ss", $name, $email);
 
-        // Set parameters and execute
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-
+        // Execute statement
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
@@ -46,7 +51,8 @@ try {
     // Close the connection
     $conn->close();
 } catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
+    error_log($e->getMessage(), 3, '/app/error_log.log');
+    echo "An error occurred, please try again later.";
 }
 ?>
 
@@ -56,3 +62,4 @@ try {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
+
