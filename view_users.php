@@ -1,29 +1,35 @@
 <?php
-// Include database connection file
-include 'db_connection.php';
+// Database credentials
+$host = 'us-cluster-east-01.k8s.cleardb.net';
+$user = 'bb9db01117ded9';
+$password = 'ae365e5b';
+$database = 'heroku_82f3c661d2b7b36';
 
 // Create connection
-$mysqli = new mysqli($host, $username, $password, $dbname);
+$mysqli = new mysqli($host, $user, $password, $database);
 
 // Check connection
 if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
-// Enable error reporting
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Query to fetch users
+// Your SQL query
 $sql = "SELECT * FROM users";
 $result = $mysqli->query($sql);
 
-// Check for errors in the query
-if (!$result) {
-    die("Query failed: " . $mysqli->error);
+if ($result->num_rows > 0) {
+    // Output data of each row
+    while($row = $result->fetch_assoc()) {
+        echo "id: " . $row["id"]. " - Name: " . $row["name"]. "<br>";
+    }
+} else {
+    echo "0 results";
 }
+
+// Close connection
+$mysqli->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
