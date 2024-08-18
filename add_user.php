@@ -24,6 +24,9 @@ try {
         // Debug log
         error_log("POST request received");
 
+        // Debug log start time
+        $start_time = microtime(true);
+
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
@@ -46,6 +49,11 @@ try {
         // Debug log after execution
         error_log("Record inserted successfully");
 
+        // Debug log end time and execution time
+        $end_time = microtime(true);
+        $execution_time = ($end_time - $start_time);
+        error_log("Execution Time: " . $execution_time . " seconds");
+
         echo "New record created successfully";
 
         // Close the statement
@@ -66,5 +74,4 @@ try {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
-
 
