@@ -1,32 +1,44 @@
 <?php
-// Include database connection file
-include 'db_connection.php';
+// Database connection settings
+$servername = "us-cluster-east-01.k8s.cleardb.net";
+$username = "bb9db01117ded9";
+$password = "ae365e5b";
+$dbname = "heroku_82f3c661d2b7b36";
+
+// Create MySQL connection
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
 // Handle deletion
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     
     // Prepare the SQL query
-    $sql = "DELETE FROM Users WHERE id = ?";
-    
-    // Use prepared statements for MySQLi
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $id); // "i" denotes the type of the parameter (integer)
-        
-        // Execute the query
-        if ($stmt->execute()) {
-            echo "<p>User deleted successfully.</p>";
-        } else {
-            echo "Error deleting record: " . $stmt->error;
-        }
-        
-        $stmt->close();
-    } else {
-        echo "Error preparing the statement: " . $conn->error;
+    $stmt = $conn->prepare("DELETE FROM Users WHERE id = ?");
+    if ($stmt === false) {
+        die("Prepare failed: " . $conn->error);
     }
+
+    // Bind parameters and execute
+    $stmt->bind_param("i", $id);
+    if ($stmt->execute()) {
+        echo "<p>User deleted successfully.</p>";
+    } else {
+        die("Execute failed: " . $stmt->error);
+    }
+
+    // Close the statement
+    $stmt->close();
 } else {
     echo "<p>No user ID provided for deletion.</p>";
 }
+
+// Close the connection
+$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -45,10 +57,5 @@ if (isset($_GET['id'])) {
     </div>
 </body>
 </html>
-
-<?php
-// Close the connection
-$conn->close();
-?>
 
 
