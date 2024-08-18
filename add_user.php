@@ -21,6 +21,9 @@ try {
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Debug log
+        error_log("POST request received");
+
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
@@ -33,14 +36,17 @@ try {
         $name = $_POST['name'];
         $email = $_POST['email'];
 
+        // Debug log before execution
+        error_log("Executing query: Name = $name, Email = $email");
+
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
-        echo "New record created successfully";
+        // Debug log after execution
+        error_log("Record inserted successfully");
 
-        // Log successful insertion
-        error_log("Record inserted: Name = $name, Email = $email");
+        echo "New record created successfully";
 
         // Close the statement
         $stmt->close();
@@ -50,6 +56,7 @@ try {
     $conn->close();
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
+    error_log("Error: " . $e->getMessage());
 }
 ?>
 
