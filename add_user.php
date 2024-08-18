@@ -56,6 +56,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 
 <!-- HTML form -->
+<a href="view_users.php">View Users</a>
+<br><br>
 <form method="post" action="">
     Name: <input type="text" name="name" required>
     Email: <input type="email" name="email" required>
