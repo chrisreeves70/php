@@ -11,7 +11,7 @@ if ($mysqli->connect_error) {
 }
 
 // Query to fetch users
-$sql = "SELECT * FROM Users";
+$sql = "SELECT * FROM users"; // Use lowercase 'users'
 $result = $mysqli->query($sql);
 ?>
 
@@ -31,7 +31,7 @@ $result = $mysqli->query($sql);
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Name</th>
+                        <th>Username</th> <!-- Updated column name -->
                         <th>Email</th>
                         <th>Actions</th>
                     </tr>
@@ -40,7 +40,7 @@ $result = $mysqli->query($sql);
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row["id"]); ?></td>
-                            <td><?php echo htmlspecialchars($row["name"]); ?></td>
+                            <td><?php echo htmlspecialchars($row["username"]); ?></td> <!-- Updated column name -->
                             <td><?php echo htmlspecialchars($row["email"]); ?></td>
                             <td>
                                 <a href="edit_user.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
