@@ -23,24 +23,63 @@ function getConnection() {
 // Create connection
 $conn = getConnection();
 
-// Prepare and execute the SQL query
+// Prepare the SQL query
 $sql = "SELECT id, name, email FROM users";
 $result = $conn->query($sql);
 
-echo "<h2>User List</h2>";
+?>
 
-if ($result->num_rows > 0) {
-    // Output data for each row
-    echo "<table border='1'><tr><th>ID</th><th>Name</th><th>Email</th></tr>";
-    while ($row = $result->fetch_assoc()) {
-        echo "<tr><td>" . $row["id"] . "</td><td>" . $row["name"] . "</td><td>" . $row["email"] . "</td></tr>";
-    }
-    echo "</table>";
-} else {
-    echo "No users found";
-}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>View Users</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Users List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ($result->num_rows > 0) {
+                // Output data of each row
+                while($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . $row["id"] . "</td>";
+                    echo "<td>" . $row["name"] . "</td>";
+                    echo "<td>" . $row["email"] . "</td>";
+                    echo "</tr>";
+                }
+            } else {
+                echo "<tr><td colspan='3'>No users found</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+    <br>
+    <a href="add_user.php">Add User</a>
+</body>
+</html>
 
+<?php
 // Close connection
 $conn->close();
 ?>
-
