@@ -17,10 +17,10 @@ if ($conn->connect_error) {
 $result = $conn->query("SELECT 1");
 if ($result === false) {
     die("Query failed: " . $conn->error);
+} else {
+    echo "Simple query executed successfully<br>";
+    flush();
 }
-
-// Initialize message variable
-$message = "";
 
 // Collect POST data
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -37,9 +37,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Execute the query
     if ($stmt->execute()) {
-        $message = "User added successfully";
+        echo "User added successfully<br>";
+        flush();
     } else {
-        $message = "Error: " . $stmt->error;
+        die("Execute failed: " . $stmt->error);
     }
 
     // Close statement
@@ -56,10 +57,4 @@ $conn->close();
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
-
-<!-- Display message -->
-<?php if (!empty($message)): ?>
-    <p><?php echo htmlspecialchars($message); ?></p>
-<?php endif; ?>
-
 
