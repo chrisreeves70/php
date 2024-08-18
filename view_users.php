@@ -38,5 +38,22 @@ echo "<table border='1'>
 <th>ID</th>
 <th>Name</th>
 <th>Email</th>
-</tr
+</tr>";
+
+while ($row = $result->fetch_assoc()) {
+    echo "<tr>
+    <td>" . htmlspecialchars($row['id']) . "</td>
+    <td>" . htmlspecialchars($row['name']) . "</td>
+    <td>" . htmlspecialchars($row['email']) . "</td>
+    </tr>";
+}
+
+echo "</table>";
+
+// Close connection
+$conn->close();
+?>
+
+<!-- Link to add user page -->
+<a href="add_user.php">Add User</a>
 
