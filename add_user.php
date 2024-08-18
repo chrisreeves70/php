@@ -13,6 +13,15 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Test query
+$result = $conn->query("SELECT 1");
+if ($result === false) {
+    die("Query failed: " . $conn->error);
+} else {
+    echo "Simple query executed successfully<br>";
+    flush();
+}
+
 // Collect POST data
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
@@ -48,4 +57,5 @@ $conn->close();
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
+
 
