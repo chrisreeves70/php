@@ -23,7 +23,7 @@ function connectToDatabase($servername, $username, $password, $dbname) {
 function handleConnectionError($e) {
     // Check if the error is related to max_user_connections
     if (strpos($e->getMessage(), 'max_user_connections') !== false) {
-        sleep(5); // Wait for a few seconds before retrying
+        sleep(10); // Wait for a longer time before retrying
         return true;
     }
     return false;
@@ -78,9 +78,8 @@ try {
         // Retry connection and execution
         try {
             $conn = connectToDatabase($servername, $username, $password, $dbname);
-            // Process form submission again
+
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                // Prepare and bind
                 $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
                 if ($stmt === false) {
                     throw new Exception("Prepare failed: " . $conn->error);
@@ -88,7 +87,6 @@ try {
 
                 $stmt->bind_param("ss", $name, $email);
 
-                // Set parameters and execute
                 $name = $_POST['name'];
                 $email = $_POST['email'];
 
@@ -96,17 +94,14 @@ try {
                     throw new Exception("Execute failed: " . $stmt->error);
                 }
 
-                // Log execution time
                 $executionTime = microtime(true) - $connTime;
                 error_log("Query executed in $executionTime seconds");
 
                 echo "New record created successfully";
 
-                // Close the statement
                 $stmt->close();
             }
 
-            // Close the connection
             $conn->close();
         } catch (Exception $e) {
             echo "Retry Error: " . $e->getMessage();
