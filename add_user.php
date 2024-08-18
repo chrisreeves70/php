@@ -68,6 +68,7 @@ try {
     <input type="submit" value="Add User">
 </form>
 
-<!-- Link to Home page -->
-<a href="index.php">Go to Home</a>
+<!-- Home Link -->
+<a href="index.php" class="btn btn-primary mt-3">Home</a>
+
 
