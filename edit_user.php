@@ -1,42 +1,60 @@
 <?php
-// Include database connection file
-include 'db_connection.php';
+// Database connection settings
+$servername = "us-cluster-east-01.k8s.cleardb.net";
+$username = "bb9db01117ded9";
+$password = "ae365e5b";
+$dbname = "heroku_82f3c661d2b7b36";
 
-$id = $_GET['id'];
+// Create MySQL connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-
-    $sql = "UPDATE users SET username = ?, email = ? WHERE id = ?";
-    $stmt = $mysqli->prepare($sql);
-    if ($stmt) {
-        $stmt->bind_param("ssi", $username, $email, $id);
-        $stmt->execute();
-        $stmt->close();
-    } else {
-        die("Prepare failed: " . $mysqli->error);
-    }
-
-    header("Location: index.php");
-    exit;
-} else {
-    $sql = "SELECT * FROM users WHERE id = ?";
-    $stmt = $mysqli->prepare($sql);
-    if ($stmt) {
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        $stmt->close();
-
-        if (!$user) {
-            die("User not found.");
-        }
-    } else {
-        die("Prepare failed: " . $mysqli->error);
-    }
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $id = $_POST['id'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    
+    // Prepare and execute the SQL query
+    $stmt = $conn->prepare("UPDATE Users SET name = ?, email = ? WHERE id = ?");
+    if ($stmt === false) {
+        die("Prepare failed: " . $conn->error);
+    }
+
+    // Bind parameters and execute
+    $stmt->bind_param("ssi", $name, $email, $id);
+    if ($stmt->execute()) {
+        echo "<p>User updated successfully.</p>";
+    } else {
+        die("Execute failed: " . $stmt->error);
+    }
+
+    // Close the statement
+    $stmt->close();
+}
+
+// Fetch user details
+$id = $_GET['id'];
+$stmt = $conn->prepare("SELECT * FROM Users WHERE id = ?");
+if ($stmt === false) {
+    die("Prepare failed: " . $conn->error);
+}
+
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+
+if ($user === null) {
+    die("User not found");
+}
+
+// Close the statement
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -50,23 +68,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div class="container">
         <h1 class="mt-5">Edit User</h1>
-        <form action="edit_user.php?id=<?php echo htmlspecialchars($user['id']); ?>" method="post">
+        <form method="post" action="edit_user.php">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($user['id']); ?>">
             <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" name="username" id="username" class="form-control" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($user['name']); ?>" required>
             </div>
             <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" name="email" id="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                <input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
             </div>
             <button type="submit" class="btn btn-primary">Update User</button>
         </form>
-        <a href="index.php" class="btn btn-secondary mt-3">Back to User List</a>
+        <a href="view_users.php" class="btn btn-secondary mt-3">Back to User List</a>
     </div>
 </body>
 </html>
 
 <?php
-$mysqli->close();
+// Close the connection
+$conn->close();
 ?>
-
