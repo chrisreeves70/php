@@ -28,6 +28,9 @@ try {
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Capture form processing start time
+        $formStartTime = microtime(true);
+
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
@@ -45,8 +48,8 @@ try {
         }
 
         // Log execution time
-        $executionTime = microtime(true) - $connTime;
-        error_log("Query executed in $executionTime seconds");
+        $executionTime = microtime(true) - $formStartTime;
+        error_log("Form processed in $executionTime seconds");
 
         echo "New record created successfully";
 
@@ -68,6 +71,4 @@ try {
     <input type="submit" value="Add User">
 </form>
 
-<!-- Home Link -->
-<a href="index.php" class="btn btn-primary mt-3">Home</a>
 
