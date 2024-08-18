@@ -1,49 +1,54 @@
 <?php
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Include database connection file
+include 'db_connection.php';
 
-// MySQL connection settings from Heroku ClearDB
-$servername = "us-cluster-east-01.k8s.cleardb.net";
-$username = "bb9db01117ded9";
-$password = "ae365e5b";
-$dbname = "heroku_82f3c661d2b7b36";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-// Check if ID is set
+// Handle deletion
 if (isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-
-    // Prepare and execute the delete query
-    $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
-    if ($stmt === false) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    $stmt->bind_param("i", $id);
-
-    if ($stmt->execute()) {
-        echo "User deleted successfully.";
+    $id = $_GET['id'];
+    
+    // Prepare the SQL query
+    $sql = "DELETE FROM Users WHERE id = ?";
+    
+    // Use prepared statements for MySQLi
+    if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param("i", $id); // "i" denotes the type of the parameter (integer)
+        
+        // Execute the query
+        if ($stmt->execute()) {
+            echo "<p>User deleted successfully.</p>";
+        } else {
+            echo "Error deleting record: " . $stmt->error;
+        }
+        
+        $stmt->close();
     } else {
-        echo "Error deleting user: " . $stmt->error;
+        echo "Error preparing the statement: " . $conn->error;
     }
-
-    $stmt->close();
 } else {
-    echo "No ID specified.";
+    echo "<p>No user ID provided for deletion.</p>";
 }
+?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete User</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Delete User</h1>
+        <p>User has been deleted successfully.</p>
+        <a href="view_users.php" class="btn btn-secondary mt-3">Back to User List</a>
+    </div>
+</body>
+</html>
+
+<?php
+// Close the connection
 $conn->close();
 ?>
 
-<!-- HTML for redirecting back to user list -->
-<p><a href="view_users.php" class="btn btn-primary mt-3">Back to User List</a></p>
 
