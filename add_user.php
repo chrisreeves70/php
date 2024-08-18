@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // MySQL connection settings from Heroku ClearDB
 $servername = "us-cluster-east-01.k8s.cleardb.net";
 $username = "bb9db01117ded9";
