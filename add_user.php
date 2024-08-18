@@ -21,8 +21,13 @@ try {
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Debug log
-        error_log("POST request received");
+        // Validate and sanitize input
+        $name = trim($_POST['name']);
+        $email = trim($_POST['email']);
+
+        if (empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Invalid input.");
+        }
 
         // Debug log start time
         $start_time = microtime(true);
@@ -36,18 +41,9 @@ try {
         $stmt->bind_param("ss", $name, $email);
 
         // Set parameters and execute
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-
-        // Debug log before execution
-        error_log("Executing query: Name = $name, Email = $email");
-
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
-
-        // Debug log after execution
-        error_log("Record inserted successfully");
 
         // Debug log end time and execution time
         $end_time = microtime(true);
@@ -74,4 +70,3 @@ try {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
-
