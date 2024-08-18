@@ -10,9 +10,19 @@ if ($mysqli->connect_error) {
     die("Connection failed: " . $mysqli->connect_error);
 }
 
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Query to fetch users
-$sql = "SELECT * FROM users"; // Use lowercase 'users'
+$sql = "SELECT * FROM users";
 $result = $mysqli->query($sql);
+
+// Check for errors in the query
+if (!$result) {
+    die("Query failed: " . $mysqli->error);
+}
 ?>
 
 <!DOCTYPE html>
@@ -31,7 +41,7 @@ $result = $mysqli->query($sql);
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Username</th> <!-- Updated column name -->
+                        <th>Name</th>
                         <th>Email</th>
                         <th>Actions</th>
                     </tr>
@@ -40,7 +50,7 @@ $result = $mysqli->query($sql);
                     <?php while ($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row["id"]); ?></td>
-                            <td><?php echo htmlspecialchars($row["username"]); ?></td> <!-- Updated column name -->
+                            <td><?php echo htmlspecialchars($row["name"]); ?></td>
                             <td><?php echo htmlspecialchars($row["email"]); ?></td>
                             <td>
                                 <a href="edit_user.php?id=<?php echo htmlspecialchars($row['id']); ?>" class="btn btn-warning btn-sm">Edit</a>
@@ -62,3 +72,4 @@ $result = $mysqli->query($sql);
 // Close the connection
 $mysqli->close();
 ?>
+
