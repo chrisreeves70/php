@@ -16,10 +16,9 @@ if ($conn->connect_error) {
 // Test query
 $result = $conn->query("SELECT 1");
 if ($result === false) {
-    die("Query failed: " . $conn->error);
+    echo "Query failed: " . $conn->error;
 } else {
-    echo "Simple query executed successfully<br>";
-    flush();
+    echo "Simple query executed successfully";
 }
 
 // Collect POST data
@@ -37,10 +36,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Execute the query
     if ($stmt->execute()) {
-        echo "User added successfully<br>";
-        flush();
+        echo "User added successfully";
     } else {
-        die("Execute failed: " . $stmt->error);
+        echo "Execute failed: " . $stmt->error;
     }
 
     // Close statement
