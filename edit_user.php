@@ -8,18 +8,35 @@ try {
     $pdo = new PDO($dsn, $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_TIMEOUT => 30,
-        PDO::ATTR_PERSISTENT => true
+        PDO::ATTR_PERSISTENT => true,
     ]);
 
-    // Test connection
+    // Test the connection
     $stmt = $pdo->query("SELECT 1");
     if (!$stmt) {
         die("Could not connect to the database.");
     }
-
 } catch (PDOException $e) {
-    error_log($e->getMessage(), 3, '/path/to/your/logs/error.log');
-    die("Could not connect to the database: " . $e->getMessage());
+    // Attempt to reconnect
+    for ($i = 0; $i < 3; $i++) {
+        try {
+            $pdo = new PDO($dsn, $username, $password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 30,
+                PDO::ATTR_PERSISTENT => true,
+            ]);
+            // Test the connection again
+            $stmt = $pdo->query("SELECT 1");
+            if ($stmt) {
+                break;
+            }
+        } catch (PDOException $e) {
+            if ($i == 2) {
+                die("Could not connect to the database after multiple attempts: " . $e->getMessage());
+            }
+            sleep(1); // Wait before retrying
+        }
+    }
 }
 
 $id = $_GET['id'];
@@ -56,12 +73,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h1>Edit User</h1>
-    <form action="edit_user.php?id=<?php echo htmlspecialchars($user['id']); ?>" method="post">
+    <form action="edit_user.php?id=<?php echo $user['id']; ?>" method="post">
         <label for="username">Username:</label>
         <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
         <br>
         <label for="email">Email:</label>
         <input type="email" name="email" id="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
         <br>
-        <button type=
-
+        <button type="submit">Update User</button>
+    </form>
+    <a href="index.php">Back to User List</a>
+</body>
+</html>
