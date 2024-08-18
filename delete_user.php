@@ -17,28 +17,18 @@ if ($conn->connect_error) {
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
     
-    // Prepare the SQL query
-    $stmt = $conn->prepare("DELETE FROM Users WHERE id = ?");
-    if ($stmt === false) {
-        die("Prepare failed: " . $conn->error);
-    }
-
-    // Bind parameters and execute
-    $stmt->bind_param("i", $id);
+    $sql = "DELETE FROM users WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param('i', $id);
+    
     if ($stmt->execute()) {
         echo "<p>User deleted successfully.</p>";
     } else {
-        die("Execute failed: " . $stmt->error);
+        echo "Error deleting record: " . $conn->error;
     }
-
-    // Close the statement
-    $stmt->close();
 } else {
     echo "<p>No user ID provided for deletion.</p>";
 }
-
-// Close the connection
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -58,4 +48,7 @@ $conn->close();
 </body>
 </html>
 
-
+<?php
+// Close the connection
+$conn->close();
+?>
