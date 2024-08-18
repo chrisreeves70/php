@@ -39,6 +39,9 @@ try {
 
         echo "New record created successfully";
 
+        // Log successful insertion
+        error_log("Record inserted: Name = $name, Email = $email");
+
         // Close the statement
         $stmt->close();
     }
@@ -49,4 +52,12 @@ try {
     echo "Error: " . $e->getMessage();
 }
 ?>
+
+<!-- HTML form -->
+<form method="post" action="">
+    Name: <input type="text" name="name" required>
+    Email: <input type="email" name="email" required>
+    <input type="submit" value="Add User">
+</form>
+
 
