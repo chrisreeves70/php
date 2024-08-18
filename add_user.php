@@ -1,25 +1,18 @@
 <?php
-// Enable error reporting for debugging
+// Enable error reporting
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// MySQL connection settings from Heroku ClearDB
+// MySQL connection settings
 $servername = "us-cluster-east-01.k8s.cleardb.net";
 $username = "bb9db01117ded9";
 $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
 
 try {
-    // Capture start time for debugging
-    $startTime = microtime(true);
-
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
-
-    // Log connection time
-    $connTime = microtime(true);
-    error_log("Connection established in " . ($connTime - $startTime) . " seconds");
 
     // Check connection
     if ($conn->connect_error) {
@@ -44,10 +37,6 @@ try {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
-        // Log execution time
-        $executionTime = microtime(true) - $connTime;
-        error_log("Query executed in $executionTime seconds");
-
         echo "New record created successfully";
 
         // Close the statement
@@ -60,11 +49,4 @@ try {
     echo "Error: " . $e->getMessage();
 }
 ?>
-
-<!-- HTML form -->
-<form method="post" action="">
-    Name: <input type="text" name="name" required>
-    Email: <input type="email" name="email" required>
-    <input type="submit" value="Add User">
-</form>
 
