@@ -11,8 +11,15 @@ $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
 
 try {
+    // Capture start time for debugging
+    $startTime = microtime(true);
+
     // Create connection
     $conn = new mysqli($servername, $username, $password, $dbname);
+
+    // Log connection time
+    $connTime = microtime(true);
+    error_log("Connection established in " . ($connTime - $startTime) . " seconds");
 
     // Check connection
     if ($conn->connect_error) {
@@ -21,9 +28,6 @@ try {
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Capture start time for debugging
-        $startTime = microtime(true);
-
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
@@ -41,7 +45,7 @@ try {
         }
 
         // Log execution time
-        $executionTime = microtime(true) - $startTime;
+        $executionTime = microtime(true) - $connTime;
         error_log("Query executed in $executionTime seconds");
 
         echo "New record created successfully";
