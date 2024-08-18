@@ -58,4 +58,3 @@ $conn->close();
     <input type="submit" value="Add User">
 </form>
 
-
