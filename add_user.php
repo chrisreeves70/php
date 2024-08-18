@@ -10,57 +10,36 @@ $username = "bb9db01117ded9";
 $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
 
-try {
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+require 'vendor/autoload.php'; // Include Composer autoload
 
-    // Check connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
-    }
+// Redis connection settings
+$redis = new Predis\Client(getenv('REDIS_URL'));
 
-    // Process form submission
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Validate and sanitize input
-        $name = trim($_POST['name']);
-        $email = trim($_POST['email']);
+// Process form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Debug log
+    error_log("POST request received");
 
-        if (empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("Invalid input.");
-        }
+    // Debug log start time
+    $start_time = microtime(true);
 
-        // Debug log start time
-        $start_time = microtime(true);
+    // Prepare job data
+    $jobData = json_encode([
+        'name' => $_POST['name'],
+        'email' => $_POST['email']
+    ]);
 
-        // Prepare and bind
-        $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-        if ($stmt === false) {
-            throw new Exception("Prepare failed: " . $conn->error);
-        }
+    // Push job to Redis queue
+    $redis->lpush('job_queue', $jobData);
 
-        $stmt->bind_param("ss", $name, $email);
+    // Debug log end time and execution time
+    $end_time = microtime(true);
+    $execution_time = ($end_time - $start_time);
+    error_log("Execution Time: " . $execution_time . " seconds");
 
-        // Set parameters and execute
-        if (!$stmt->execute()) {
-            throw new Exception("Execute failed: " . $stmt->error);
-        }
+    echo "User addition job has been added to the queue.";
 
-        // Debug log end time and execution time
-        $end_time = microtime(true);
-        $execution_time = ($end_time - $start_time);
-        error_log("Execution Time: " . $execution_time . " seconds");
-
-        echo "New record created successfully";
-
-        // Close the statement
-        $stmt->close();
-    }
-
-    // Close the connection
-    $conn->close();
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
-    error_log("Error: " . $e->getMessage());
+    // No need to close the database connection here
 }
 ?>
 
@@ -70,3 +49,4 @@ try {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
+
