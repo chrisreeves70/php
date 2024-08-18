@@ -13,24 +13,37 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Initialize message variable
+$message = "";
+
 // Collect POST data
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
+    // Sanitize input data
+    $name = htmlspecialchars(trim($_POST['name']));
+    $email = htmlspecialchars(trim($_POST['email']));
 
-    // Prepare the SQL query
-    $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-    $stmt->bind_param("ss", $name, $email);
-
-    // Execute the query
-    if ($stmt->execute()) {
-        echo "User added successfully";
+    // Validate input data
+    if (empty($name) || empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = "Please provide a valid name and email.";
     } else {
-        echo "Error: " . $stmt->error;
-    }
+        // Prepare the SQL query
+        $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+        if ($stmt === false) {
+            $message = "Error preparing the SQL statement: " . $conn->error;
+        } else {
+            $stmt->bind_param("ss", $name, $email);
 
-    // Close statement
-    $stmt->close();
+            // Execute the query
+            if ($stmt->execute()) {
+                $message = "User added successfully";
+            } else {
+                $message = "Error executing query: " . $stmt->error;
+            }
+
+            // Close statement
+            $stmt->close();
+        }
+    }
 }
 
 // Close connection
@@ -38,9 +51,26 @@ $conn->close();
 ?>
 
 <!-- HTML form -->
-<form method="post" action="">
-    Name: <input type="text" name="name" required>
-    Email: <input type="email" name="email" required>
-    <input type="submit" value="Add User">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add User</title>
+</head>
+<body>
+    <h2>Add User</h2>
+    <form method="post" action="">
+        Name: <input type="text" name="name" required>
+        Email: <input type="email" name="email" required>
+        <input type="submit" value="Add User">
+    </form>
+    <!-- Display message -->
+    <?php if (!empty($message)): ?>
+        <p><?php echo htmlspecialchars($message); ?></p>
+    <?php endif; ?>
+</body>
+</html>
+
+
 
