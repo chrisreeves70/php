@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // MySQL connection settings from Heroku ClearDB
 $servername = "us-cluster-east-01.k8s.cleardb.net";
 $username = "bb9db01117ded9";
@@ -20,17 +25,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Prepare the SQL query
     $stmt = $conn->prepare("INSERT INTO Users (name, email) VALUES (?, ?)");
-    $stmt->bind_param("ss", $name, $email);
+    if ($stmt) {
+        $stmt->bind_param("ss", $name, $email);
 
-    // Execute the query
-    if ($stmt->execute()) {
-        echo "User added successfully";
+        // Execute the query
+        if ($stmt->execute()) {
+            echo "User added successfully";
+        } else {
+            echo "Error: " . $stmt->error;
+        }
+
+        // Close statement
+        $stmt->close();
     } else {
-        echo "Error: " . $stmt->error;
+        echo "Error preparing statement: " . $conn->error;
     }
-
-    // Close statement
-    $stmt->close();
 }
 
 // Close connection
@@ -43,3 +52,4 @@ $conn->close();
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
+
