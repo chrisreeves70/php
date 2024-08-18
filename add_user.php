@@ -4,54 +4,38 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+
+
 // MySQL connection settings from Heroku ClearDB
 $servername = "us-cluster-east-01.k8s.cleardb.net";
 $username = "bb9db01117ded9";
 $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-// Function to create and return a database connection
-function getConnection() {
-    global $servername, $username, $password, $dbname;
-    $conn = new mysqli($servername, $username, $password, $dbname);
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-    return $conn;
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Collect POST data
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+// Prepare and bind
+$stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+$stmt->bind_param("ss", $name, $email);
 
-    if (empty($name) || empty($email)) {
-        echo "Name and email are required.";
-    } else {
-        // Create connection
-        $conn = getConnection();
+// Set parameters and execute
+$name = $_POST['name'];
+$email = $_POST['email'];
+$stmt->execute();
 
-        // Prepare the SQL query
-        $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-        if ($stmt === false) {
-            die("Prepare failed: " . $conn->error);
-        }
+// Close the statement and connection
+$stmt->close();
+$conn->close();
 
-        $stmt->bind_param("ss", $name, $email);
-
-        // Execute the query
-        if ($stmt->execute()) {
-            echo "User added successfully";
-        } else {
-            echo "Error adding user: " . $stmt->error;
-        }
-
-        // Close statement and connection
-        $stmt->close();
-        $conn->close();
-    }
-}
+echo "New records created successfully";
 ?>
+
+
 
 <!-- HTML form -->
 <form method="post" action="">
