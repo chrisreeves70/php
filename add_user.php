@@ -46,10 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Error adding user: " . $stmt->error;
         }
 
-        // Close statement
+        // Close statement and connection
         $stmt->close();
-
-        // Close connection
         $conn->close();
     }
 }
@@ -61,4 +59,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
-
