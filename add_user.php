@@ -40,15 +40,12 @@ try {
         $name = $_POST['name'];
         $email = $_POST['email'];
 
-        // Log start of execution
-        $queryStartTime = microtime(true);
-
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
 
         // Log execution time
-        $executionTime = microtime(true) - $queryStartTime;
+        $executionTime = microtime(true) - $connTime;
         error_log("Query executed in $executionTime seconds");
 
         echo "New record created successfully";
