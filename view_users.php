@@ -26,7 +26,6 @@ $conn = getConnection();
 // Prepare the SQL query
 $sql = "SELECT id, name, email FROM users";
 $result = $conn->query($sql);
-
 ?>
 
 <!DOCTYPE html>
