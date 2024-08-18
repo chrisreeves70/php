@@ -8,24 +8,41 @@ try {
     $pdo = new PDO($dsn, $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_TIMEOUT => 30,
-        PDO::ATTR_PERSISTENT => true
+        PDO::ATTR_PERSISTENT => true,
     ]);
 
-    // Test connection
+    // Test the connection
     $stmt = $pdo->query("SELECT 1");
     if (!$stmt) {
         die("Could not connect to the database.");
     }
-
-    // Fetch all users with a limit
-    $sql = "SELECT * FROM users LIMIT 100"; // Add limit for large datasets
-    $statement = $pdo->query($sql);
-    $users = $statement->fetchAll(PDO::FETCH_ASSOC);
-
 } catch (PDOException $e) {
-    error_log($e->getMessage(), 3, '/path/to/your/logs/error.log');
-    die("Could not connect to the database: " . $e->getMessage());
+    // Attempt to reconnect
+    for ($i = 0; $i < 3; $i++) {
+        try {
+            $pdo = new PDO($dsn, $username, $password, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_TIMEOUT => 30,
+                PDO::ATTR_PERSISTENT => true,
+            ]);
+            // Test the connection again
+            $stmt = $pdo->query("SELECT 1");
+            if ($stmt) {
+                break;
+            }
+        } catch (PDOException $e) {
+            if ($i == 2) {
+                die("Could not connect to the database after multiple attempts: " . $e->getMessage());
+            }
+            sleep(1); // Wait before retrying
+        }
+    }
 }
+
+// Fetch all users
+$sql = "SELECT * FROM users";
+$statement = $pdo->query($sql);
+$users = $statement->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -60,5 +77,6 @@ try {
     </table>
 </body>
 </html>
+
 
 
