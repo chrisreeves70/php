@@ -19,6 +19,7 @@ if ($result === false) {
     die("Query failed: " . $conn->error);
 } else {
     echo "Simple query executed successfully<br>";
+    flush();
 }
 
 // Collect POST data
@@ -37,6 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Execute the query
     if ($stmt->execute()) {
         echo "User added successfully<br>";
+        flush();
     } else {
         die("Execute failed: " . $stmt->error);
     }
@@ -55,3 +57,4 @@ $conn->close();
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
+
