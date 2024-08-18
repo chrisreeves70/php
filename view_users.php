@@ -23,37 +23,24 @@ function getConnection() {
 // Create connection
 $conn = getConnection();
 
-// Prepare the SQL query to fetch all users
-$query = "SELECT id, name, email FROM users";
-$result = $conn->query($query);
+// Prepare and execute the SQL query
+$sql = "SELECT id, name, email FROM users";
+$result = $conn->query($sql);
 
-if ($result === false) {
-    die("Query failed: " . $conn->error);
+echo "<h2>User List</h2>";
+
+if ($result->num_rows > 0) {
+    // Output data for each row
+    echo "<table border='1'><tr><th>ID</th><th>Name</th><th>Email</th></tr>";
+    while ($row = $result->fetch_assoc()) {
+        echo "<tr><td>" . $row["id"] . "</td><td>" . $row["name"] . "</td><td>" . $row["email"] . "</td></tr>";
+    }
+    echo "</table>";
+} else {
+    echo "No users found";
 }
-
-// Display users in a table
-echo "<h2>Users List</h2>";
-echo "<table border='1'>
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Email</th>
-</tr>";
-
-while ($row = $result->fetch_assoc()) {
-    echo "<tr>
-    <td>" . htmlspecialchars($row['id']) . "</td>
-    <td>" . htmlspecialchars($row['name']) . "</td>
-    <td>" . htmlspecialchars($row['email']) . "</td>
-    </tr>";
-}
-
-echo "</table>";
 
 // Close connection
 $conn->close();
 ?>
-
-<!-- Link to add user page -->
-<a href="add_user.php">Add User</a>
 
