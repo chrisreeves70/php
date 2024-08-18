@@ -51,4 +51,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         // Close connection
         $conn->close();
+    }
+}
+?>
+
+<!-- HTML form -->
+<form method="post" action="">
+    Name: <input type="text" name="name" required>
+    Email: <input type="email" name="email" required>
+    <input type="submit" value="Add User">
+</form>
 
