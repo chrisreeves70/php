@@ -61,4 +61,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
-
