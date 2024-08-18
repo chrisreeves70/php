@@ -10,18 +10,23 @@ $username = "bb9db01117ded9";
 $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+// Function to create and return a database connection
+function getConnection() {
+    global $servername, $username, $password, $dbname;
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    return $conn;
 }
 
 // Collect POST data
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
+
+    // Create connection
+    $conn = getConnection();
 
     // Prepare the SQL query
     $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
@@ -40,10 +45,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Close statement
     $stmt->close();
-}
 
-// Close connection
-$conn->close();
+    // Close connection
+    $conn->close();
+}
 ?>
 
 <!-- HTML form -->
