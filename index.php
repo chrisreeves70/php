@@ -5,16 +5,27 @@ $username = 'bb9db01117ded9';
 $password = 'ae365e5b';
 
 try {
-    $pdo = new PDO($dsn, $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_TIMEOUT => 30,
+        PDO::ATTR_PERSISTENT => true
+    ]);
+
+    // Test connection
+    $stmt = $pdo->query("SELECT 1");
+    if (!$stmt) {
+        die("Could not connect to the database.");
+    }
+
+    // Fetch all users with a limit
+    $sql = "SELECT * FROM users LIMIT 100"; // Add limit for large datasets
+    $statement = $pdo->query($sql);
+    $users = $statement->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
+    error_log($e->getMessage(), 3, '/path/to/your/logs/error.log');
     die("Could not connect to the database: " . $e->getMessage());
 }
-
-// Fetch all users
-$sql = "SELECT * FROM users";
-$statement = $pdo->query($sql);
-$users = $statement->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -49,4 +60,5 @@ $users = $statement->fetchAll(PDO::FETCH_ASSOC);
     </table>
 </body>
 </html>
+
 
