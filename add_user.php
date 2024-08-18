@@ -1,64 +1,45 @@
 <?php
-// Database connection
-$host = 'us-cluster-east-01.k8s.cleardb.net';
-$dbname = 'heroku_82f3c661d2b7b36';
-$username = 'bb9db01117ded9';
-$password = 'ae365e5b';
+// MySQL connection settings from Heroku ClearDB
+$servername = "us-cluster-east-01.k8s.cleardb.net";
+$username = "bb9db01117ded9";
+$password = "ae365e5b";
+$dbname = "heroku_82f3c661d2b7b36";
 
-$mysqli = new mysqli($host, $username, $password, $dbname);
+// Create connection
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
-if ($mysqli->connect_error) {
-    die("Connection failed: " . $mysqli->connect_error);
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Test the connection
-if (!$mysqli->ping()) {
-    die("Could not connect to the database.");
-}
-
+// Collect POST data
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST['username'];
+    $name = $_POST['name'];
     $email = $_POST['email'];
 
-    $sql = "INSERT INTO users (username, email) VALUES (?, ?)";
-    $stmt = $mysqli->prepare($sql);
-    if ($stmt) {
-        $stmt->bind_param("ss", $username, $email);
-        $stmt->execute();
-        $stmt->close();
+    // Prepare the SQL query
+    $stmt = $conn->prepare("INSERT INTO Users (name, email) VALUES (?, ?)");
+    $stmt->bind_param("ss", $name, $email);
+
+    // Execute the query
+    if ($stmt->execute()) {
+        echo "User added successfully";
     } else {
-        die("Prepare failed: " . $mysqli->error);
+        echo "Error: " . $stmt->error;
     }
 
-    header("Location: index.php");
-    exit;
+    // Close statement
+    $stmt->close();
 }
+
+// Close connection
+$conn->close();
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add User</title>
-    <link rel="stylesheet" href="assets/style.css">
-</head>
-<body>
-    <h1>Add User</h1>
-    <form action="add_user.php" method="post">
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required>
-        <br>
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required>
-        <br>
-        <button type="submit">Add User</button>
-    </form>
-    <a href="index.php">Back to User List</a>
-</body>
-</html>
-
-<?php
-$mysqli->close();
-?>
+<!-- HTML form -->
+<form method="post" action="">
+    Name: <input type="text" name="name" required>
+    Email: <input type="email" name="email" required>
+    <input type="submit" value="Add User">
+</form>
