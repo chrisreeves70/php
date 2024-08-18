@@ -1,64 +1,85 @@
+<?php
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// MySQL connection settings from Heroku ClearDB
+$servername = "us-cluster-east-01.k8s.cleardb.net";
+$username = "bb9db01117ded9";
+$password = "ae365e5b";
+$dbname = "heroku_82f3c661d2b7b36";
+
+// Function to create and return a database connection
+function getConnection() {
+    global $servername, $username, $password, $dbname;
+    $conn = new mysqli($servername, $username, $password, $dbname);
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+    return $conn;
+}
+
+// Create connection
+$conn = getConnection();
+
+// Prepare the SQL query
+$sql = "SELECT id, name, email FROM users";
+$result = $conn->query($sql);
+?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Users</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>User List</h2>
-        <table class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // MySQL connection settings from Heroku ClearDB
-                $servername = "us-cluster-east-01.k8s.cleardb.net";
-                $username = "bb9db01117ded9";
-                $password = "ae365e5b";
-                $dbname = "heroku_82f3c661d2b7b36";
-
-                // Create connection
-                $conn = new mysqli($servername, $username, $password, $dbname);
-
-                // Check connection
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
+    <h1>Users List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            if ($result->num_rows > 0) {
+                // Output data of each row
+                while($row = $result->fetch_assoc()) {
+                    echo "<tr>";
+                    echo "<td>" . $row["id"] . "</td>";
+                    echo "<td>" . $row["name"] . "</td>";
+                    echo "<td>" . $row["email"] . "</td>";
+                    echo "</tr>";
                 }
-
-                // Retrieve users
-                $sql = "SELECT id, name, email FROM users";
-                $result = $conn->query($sql);
-
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>
-                                <td>{$row['id']}</td>
-                                <td>{$row['name']}</td>
-                                <td>{$row['email']}</td>
-                                <td>
-                                    <a href='edit_user.php?id={$row['id']}' class='btn btn-warning btn-sm'>Edit</a>
-                                    <a href='delete_user.php?id={$row['id']}' class='btn btn-danger btn-sm'>Delete</a>
-                                </td>
-                              </tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='4'>No users found</td></tr>";
-                }
-
-                $conn->close();
-                ?>
-            </tbody>
-        </table>
-    </div>
+            } else {
+                echo "<tr><td colspan='3'>No users found</td></tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+    <br>
+    <a href="add_user.php">Add User</a>
 </body>
 </html>
+
+<?php
+// Close connection
+$conn->close();
+?>
 
