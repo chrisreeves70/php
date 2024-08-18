@@ -4,13 +4,12 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
-
 // MySQL connection settings from Heroku ClearDB
 $servername = "us-cluster-east-01.k8s.cleardb.net";
 $username = "bb9db01117ded9";
 $password = "ae365e5b";
 $dbname = "heroku_82f3c661d2b7b36";
+
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -19,23 +18,33 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Prepare and bind
-$stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-$stmt->bind_param("ss", $name, $email);
+// Process form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Prepare and bind
+    $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
+    if ($stmt === false) {
+        die("Prepare failed: " . $conn->error);
+    }
 
-// Set parameters and execute
-$name = $_POST['name'];
-$email = $_POST['email'];
-$stmt->execute();
+    $stmt->bind_param("ss", $name, $email);
 
-// Close the statement and connection
-$stmt->close();
+    // Set parameters and execute
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+
+    if (!$stmt->execute()) {
+        die("Execute failed: " . $stmt->error);
+    }
+
+    echo "New record created successfully";
+
+    // Close the statement
+    $stmt->close();
+}
+
+// Close the connection
 $conn->close();
-
-echo "New records created successfully";
 ?>
-
-
 
 <!-- HTML form -->
 <form method="post" action="">
