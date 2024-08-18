@@ -31,9 +31,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Create connection
         $conn = getConnection();
 
-        // Log connection time
-        $start_time = microtime(true);
-
         // Prepare the SQL query
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
@@ -49,10 +46,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Error adding user: " . $stmt->error;
         }
 
-        // Log query execution time
-        $execution_time = microtime(true) - $start_time;
-        echo "<br>Query execution time: " . $execution_time . " seconds";
-
         // Close statement
         $stmt->close();
 
@@ -67,5 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <br><br>
 <form method="post" action="">
     Name: <input type="text" name="name" required>
-    
-
+    <br>
+    Email: <input type="email" name="email" required>
+    <br><br>
+    <input type="submit" value="Add User">
+</form>
