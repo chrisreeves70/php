@@ -21,13 +21,8 @@ try {
 
     // Process form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-
-        // Simple input validation
-        if (empty($name) || empty($email)) {
-            throw new Exception("Name and Email are required.");
-        }
+        // Capture start time for debugging
+        $startTime = microtime(true);
 
         // Prepare and bind
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
@@ -37,10 +32,17 @@ try {
 
         $stmt->bind_param("ss", $name, $email);
 
-        // Execute statement
+        // Set parameters and execute
+        $name = $_POST['name'];
+        $email = $_POST['email'];
+
         if (!$stmt->execute()) {
             throw new Exception("Execute failed: " . $stmt->error);
         }
+
+        // Log execution time
+        $executionTime = microtime(true) - $startTime;
+        error_log("Query executed in $executionTime seconds");
 
         echo "New record created successfully";
 
@@ -51,8 +53,7 @@ try {
     // Close the connection
     $conn->close();
 } catch (Exception $e) {
-    error_log($e->getMessage(), 3, '/app/error_log.log');
-    echo "An error occurred, please try again later.";
+    echo "Error: " . $e->getMessage();
 }
 ?>
 
