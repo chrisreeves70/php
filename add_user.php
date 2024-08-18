@@ -15,6 +15,7 @@ function getConnection() {
     global $servername, $username, $password, $dbname;
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
+        error_log("Connection failed: " . $conn->connect_error);
         die("Connection failed: " . $conn->connect_error);
     }
     return $conn;
@@ -34,6 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Prepare the SQL query
         $stmt = $conn->prepare("INSERT INTO users (name, email) VALUES (?, ?)");
         if ($stmt === false) {
+            error_log("Prepare failed: " . $conn->error);
             die("Prepare failed: " . $conn->error);
         }
 
@@ -43,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($stmt->execute()) {
             echo "User added successfully";
         } else {
+            error_log("Execute failed: " . $stmt->error);
             echo "Error adding user: " . $stmt->error;
         }
 
@@ -52,6 +55,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Close connection
         $conn->close();
     }
+} else {
+    echo "No data posted";
 }
 ?>
 
