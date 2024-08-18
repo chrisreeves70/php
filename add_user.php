@@ -48,6 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Close connection
     $conn->close();
+} else {
+    echo "No data posted";
 }
 ?>
 
@@ -57,3 +59,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     Email: <input type="email" name="email" required>
     <input type="submit" value="Add User">
 </form>
+
