@@ -1,72 +1,72 @@
 <?php
-// Enable error reporting for debugging
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Include database connection file
+include 'db_connection.php';
 
-// MySQL connection settings from Heroku ClearDB
-$servername = "us-cluster-east-01.k8s.cleardb.net";
-$username = "bb9db01117ded9";
-$password = "ae365e5b";
-$dbname = "heroku_82f3c661d2b7b36";
+$id = $_GET['id'];
 
-try {
-    // Create connection
-    $conn = new mysqli($servername, $username, $password, $dbname);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = $_POST['username'];
+    $email = $_POST['email'];
 
-    // Check connection
-    if ($conn->connect_error) {
-        throw new Exception("Connection failed: " . $conn->connect_error);
+    $sql = "UPDATE users SET username = ?, email = ? WHERE id = ?";
+    $stmt = $mysqli->prepare($sql);
+    if ($stmt) {
+        $stmt->bind_param("ssi", $username, $email, $id);
+        $stmt->execute();
+        $stmt->close();
+    } else {
+        die("Prepare failed: " . $mysqli->error);
     }
 
-    // Check if ID is provided
-    if (isset($_GET['id'])) {
-        $id = $_GET['id'];
-
-        // Fetch user data
-        $stmt = $conn->prepare("SELECT name, email FROM users WHERE id = ?");
-        if ($stmt === false) {
-            throw new Exception("Prepare failed: " . $conn->error);
-        }
-
+    header("Location: index.php");
+    exit;
+} else {
+    $sql = "SELECT * FROM users WHERE id = ?";
+    $stmt = $mysqli->prepare($sql);
+    if ($stmt) {
         $stmt->bind_param("i", $id);
         $stmt->execute();
-        $stmt->bind_result($name, $email);
-        $stmt->fetch();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
         $stmt->close();
-    }
 
-    // Process form submission
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $name = $_POST['name'];
-        $email = $_POST['email'];
-
-        // Update the user data
-        $stmt = $conn->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
-        if ($stmt === false) {
-            throw new Exception("Prepare failed: " . $conn->error);
+        if (!$user) {
+            die("User not found.");
         }
-
-        $stmt->bind_param("ssi", $name, $email, $id);
-
-        if (!$stmt->execute()) {
-            throw new Exception("Execute failed: " . $stmt->error);
-        }
-
-        echo "User updated successfully";
-        $stmt->close();
+    } else {
+        die("Prepare failed: " . $mysqli->error);
     }
-
-    // Close the connection
-    $conn->close();
-} catch (Exception $e) {
-    echo "Error: " . $e->getMessage();
 }
 ?>
 
-<!-- HTML form for editing user details -->
-<form method="post" action="">
-    Name: <input type="text" name="name" value="<?php echo htmlspecialchars($name); ?>" required>
-    Email: <input type="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
-    <input type="submit" value="Update User">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Edit User</h1>
+        <form action="edit_user.php?id=<?php echo htmlspecialchars($user['id']); ?>" method="post">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username" class="form-control" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" name="email" id="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update User</button>
+        </form>
+        <a href="index.php" class="btn btn-secondary mt-3">Back to User List</a>
+    </div>
+</body>
+</html>
+
+<?php
+$mysqli->close();
+?>
+
