@@ -1,6 +1,6 @@
 <?php
 // Database connection
-$host = 'us-cdbr-east-01.cleardb.net';
+$host = 'us-cluster-east-01.k8s.cleardb.net';
 $dbname = 'heroku_82f3c661d2b7b36';
 $username = 'bb9db01117ded9';
 $password = 'ae365e5b';
